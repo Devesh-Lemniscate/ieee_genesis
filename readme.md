@@ -1,30 +1,30 @@
 # IEEE SB Machine Learning Challenge: Fault Classification
 
 ## Project Overview
-This repository contains our team's submission for the IEEE SB Machine Learning Challenge. The objective is to construct a binary classification model capable of detecting faulty devices based on 47 anonymized sensor readings (Features `F01` through `F47`).
+This repository contains our team's submission for the IEEE SB Machine Learning Challenge. The task was to make a binary classification model capable of detecting faulty devices based on 47 sensor readings (Features `F01` through `F47`).
 
 ## Methodology and Architecture
-To achieve high generalization and prevent overfitting on tabular data, our solution utilizes a heavily regularized, tree-based ensemble approach. The pipeline is structured into four main phases:
+To  prevent overfitting on tabular data we used a regularized tree based ensemble approach. The pipeline is structured into four main phases:
 
 ### 1. Data Preprocessing
-* **Deduplication:** Identified and removed 738 duplicate records from the training set prior to splitting. This prevents data leakage during cross-validation and ensures validation metrics accurately reflect unseen data performance.
+* **Deduplication:** Identified and removed 738 duplicate records from the training set before splitting. This prevented data leakage during cross-validation and ensured that validation metrics accurately reflect unseen data performance.
 
 ### 2. Feature Engineering
-We expanded the feature space from 47 to 60 variables to capture system-wide states rather than isolated sensor anomalies. 
-* **Row-Wise Statistical States:** Calculated the `mean`, `standard deviation`, `min`, `max`, `skewness`, and `kurtosis` across all 47 sensors for each individual timestamp.
-* **Sparsity Indicators:** Counted the exact number of sensors returning `0.0` per row, acting as a quantitative marker for systemic failure.
-* **Unsupervised Manifold Learning (PCA):** Applied Principal Component Analysis (PCA) to compress the 47 sensors into 5 macro-features, forcing the model to evaluate the overall variance of the system.
-* **State Clustering (K-Means):** Grouped the combined training and test datasets into 5 distinct operational states using K-Means. We extracted the distance to the nearest cluster center as a spatial anomaly detection feature.
+We expanded the feature space from 47 to 60 variables to capture system wide states rather than only sensor anomalies. 
+* **Row Wise Statistical States:** Calculated the `mean`, `standard deviation`, `min`, `max`, `skewness`, and `kurtosis` across all 47 sensors for each individual timestamp.
+* **Sparsity Indicators:** Counted the exact number of sensors returning `0.0` per row depicting system failure.
+* **Unsupervised Manifold Learning (PCA):** Applied Principal Component Analysis (PCA) to compress the 47 sensors into 5 macro features forcing the model to evaluate the overall variance of the system.
+* **State Clustering (K-Means):** Used K-Means to group the training and testing dataset into 5 states. Then extracted the distance to the nearest cluster center.
 
 ### 3. Modeling: 3-Way Stacked Ensemble
-The core predictive engine is an equally weighted blend of three gradient-boosted decision tree frameworks. All models utilize early stopping to halt training at peak generalization.
-* **XGBoost:** Configured for conservative depth (`max_depth=6`) with heavy column and row subsampling (`0.8`).
-* **LightGBM:** Optimized for leaf-wise growth (`num_leaves=31`) to handle the engineered feature space efficiently.
-* **CatBoost:** Utilized for its robust handling of numerical distributions and resistance to overfitting via symmetric trees.
+We used 3 gradient boosted decision tree models with each having equal weight as the core predictive engine. All models uses early stopping to prevent overfitting. The 3 models were :- 
+* **XGBoost:**
+* **LightGBM:**
+* **CatBoost:**
 
 ### 4. Validation and Threshold Optimization
-* **Validation Strategy:** Evaluated using strict Stratified 5-Fold Cross-Validation (`random_state=42`) to maintain the exact 60/40 target class balance across all isolated folds.
-* **Probability Thresholding:** Instead of a default 0.50 cutoff, the ensemble's Out-Of-Fold (OOF) probabilities were systematically scanned. The optimal decision boundary was mathematically determined to be `0.40`, maximizing target capture accuracy given the dataset's slight imbalance.
+* **Cross Validation:** Evaluated using 5 Fold Cross Validation (`random_state=42`) and maintained the exact 60/40 ratio of working and faulty devices across all isolated folds.
+* **Probability Thresholding:** Instead of flagging the device at `50%` probability, we lowered the trigger and found that the flagging the device as faulty at `40%` probability found the maximum faulty devices. 
 
 ## Final Model Performance
 * **Out-Of-Fold (OOF) Accuracy:** 98.82%
@@ -33,7 +33,7 @@ The core predictive engine is an equally weighted blend of three gradient-booste
 ## Setup and Execution
 
 ### Prerequisites
-Ensure Python 3.8+ is installed on your system. Clone the repository and install the required dependencies:
+Ensure Python 3.8+ is installed on the system. Clone the repository and install the required dependencies:
 
 ```bash
 git clone [https://github.com/Devesh-Lemniscate/ieee_genesis.git](https://github.com/Devesh-Lemniscate/ieee_genesis.git)
@@ -51,5 +51,5 @@ Download the competition files (`TRAIN.csv` and `TEST.csv`) and place them direc
    ```
 2. Open the `.ipynb` notebook file.
 3. Execute all cells sequentially from top to bottom. 
-4. The pipeline will automatically process the data, engineer the features, train the 5-fold ensemble, calculate the optimal threshold, and generate the final predictions in a file named `FINAL_ULTIMATE.csv`.
+4. The pipeline will automatically process the data, engineer the features, train the 5-fold ensemble, calculate the optimal threshold, and generate the final predictions in a file named `FINAL.csv`.
 
