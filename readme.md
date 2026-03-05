@@ -42,7 +42,7 @@ pip install -r requirements.txt
 ```
 
 ### Dataset Placement
-Download the competition files (`TRAIN.csv` and `TEST.csv`) and place them directly in the root directory of the cloned repository.
+Download the competition ML Challenge Dataset folder and inside it will be (`TRAIN.csv` and `TEST.csv`) files.
 
 ### Usage
 1. Launch the Jupyter environment:
